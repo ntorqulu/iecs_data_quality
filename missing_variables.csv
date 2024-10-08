@@ -1,0 +1,178 @@
+ancestry
+cause_of_death/ death_cause_other
+length/ cm_unknown
+weight/ kg_unknown
+smoking_packs
+recreational_drugs
+exercise
+diet
+comorbiditiesid/ comorbidities_other
+first_hcp_contact/ date_hcp_contact
+courseID
+method_histology
+histopathology_id
+histology_confirmed
+flow_id
+bloodflow_id
+bone_marrow_flow
+dx_imaging_id
+enter_clin_diag_date
+sub_orpha_id_alpha/ sub_orpha_id_beta/ sub_orpha_id_constitutional_iron/ sub_orpha_id_constitutional_deficiency_anemia/ sub_orpha_id_constitutional_dyserythropoietic/ sub_orpha_id_constitutional_aplastic_anemia/ sub_orpha_id_rare_membrane/ sub_orpha_id_rare_enzyme/ sub_orpha_id_scd/ sub_orpha_id_other
+genesID/ gene_type_novel/ novelsymbol
+sub_orpha_id_undiagnosed / undiagnosed_other_text
+enter_onset_date/ onset_date
+reason_diagnosis/ reason_diag_other
+fsymptoms_id/ fsymptoms_other
+neonatal_jaundice
+require_phototherapy
+neonatal_haemolytic_anemia
+requiring_blood_transfusion
+other_neonatal
+liver_mri_mgg
+abdominal_ultrasound_date
+liver_diameter
+spleen_diameter
+transcranial_doppler_date
+bone_mineral_density
+lumbar_spine_z_score / lumbar_spine_t_score
+femoral_neck_z_score / femoral_neck_t_score
+hip_z_score / hip_t_score
+avascular_necrosis_grade/ avascular_necrosis_grade_other
+bones_complication_answer_7
+bones_complication_answer_8
+date_bc_8
+bones_complication_answer_9
+date_bc_9
+cpd_value_10
+date_cpd_10
+cpd_value_11
+artery_systolic_pressure
+lvef
+neuro_answer_7
+neuro_answer_8
+neuro_answer_9
+neuro_answer_10
+neuro_answer_11
+neuro_answer_12
+neuro_answer_13
+neuro_answer_14
+endo_answer_8
+endo_answer_10
+date_endo_10
+lkd_answer_8
+lkd_answer_10
+lkd_answer_12
+lkd_answer_13
+lkd_answer_14
+lkd_answer_15
+date_lkd_15
+vhepatits_id/ vhepatitis_other
+hae_answer_1
+date_hae_1
+pain_answer_1
+Localisation
+life_answer_1
+life_answer_2
+life_answer_3
+life_answer_4
+life_answer_5
+life_answer_6
+life_answer_7
+life_answer_8
+life_answer_9
+acute_complications
+date_acute_r1
+acute_id_r1/ other_secondary_textarea1_r1
+acute_id2_r1/ other_secondary_textarea2_r1
+all_cause_hospitalisation
+hospitalisation_times
+hospitalisation_pain
+hospitalisation_pain_times
+hospitalisation_acute_event
+splenomegaly_date
+splenic_crisis
+splenic_infraction
+splenectomy/ splenectomy_unknown
+splenectomy_reason/ splenectomy_other
+arthroplasty
+arthroplasty_year
+orthopaedic_intervention
+orthopaedic_intervention_year
+other_surgery
+other_surgery_year
+psychological_issues
+social_issues
+preterm_labor
+transfusions_5_years
+trans_change/ other_blood
+regular_transfusion_status
+indication_reg_id/ indication_other
+pre_transfusion_hbs
+adverse_event/ adverse_event_other
+occasional_cause_id/ main_cause_other
+ag_drug_dose_1/ ag_drug_dose_2/ ag_drug_dose_3
+drug_administration
+drug_compliance
+concomitant_therapy
+current_concomitant_dose
+hydroxyurea_status
+hu_administration
+treatid/ other_treat
+experimental_therapy_drug
+outside_clinical_trial
+specify_experimental_drug
+past_experimental_drug
+l_glutamine
+l_glutamine_dose
+voxelotor
+voxelotor_dose
+crizanlizumab
+crizanlizumab
+medical_cannabis
+medical_cannabis_dose
+luspatercept
+luspatercept_dose
+opioid
+opioid_list
+opioid_dose
+type_hsct/ type_hsct_other
+transplant_outcome/ transplant_outcome_other
+not_transplanted_id/ not_transplanted_other
+test_result_95
+test_result_14
+test_result_16
+test_result_17
+test_result_31
+test_result_32
+test_result_33
+test_result_97_abo/test_result_97_rh/test_result_97_kell
+test_result_98
+test_result_34
+test_result_35
+test_result_36
+test_result_37
+test_result_38
+test_result_39
+test_result_40
+test_result_41
+test_result_42
+test_result_43
+test_result_44
+test_result_45
+test_result_46
+test_result_47
+test_result_48/ test_result_48_other
+test_result_49/ test_result_49_other
+test_result_50
+test_result_51
+test_result_52/ test_result_52_other
+test_result_53/ test_result_53_other
+test_result_54
+test_result_94
+test_result_99
+test_result_100
+test_result_101
+test_result_102
+test_result_103
+test_result_104
+test_result_105
