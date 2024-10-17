@@ -1,5 +1,3 @@
-# Ignore Excel files
+# Ignore all .xlsx and .csv files in the repository
 *.xlsx
-
-# Ignore CSV files
 *.csv
