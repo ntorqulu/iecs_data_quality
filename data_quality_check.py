@@ -3,12 +3,12 @@ import openpyxl
 import re
 
 # read xlsx file, sheet CRF
-df_crf = pd.read_excel('20240819_Euroblood CRFs_ALL_PROJECTS(6).xlsx', sheet_name='Data Quality Rules')
+df_crf = pd.read_excel('20240819_Euroblood CRFs_ALL_PROJECTS(7).xlsx', sheet_name='Data Quality Rules')
 # get rows where column INTEGRA is 'x' or GenoMed4ALL is 'x' or RADeep is 'x'
 # df_crf = df_crf[(df_crf['INTEGRA'] == 'x') | (df_crf['GenoMed4ALL'] == 'x') | (df_crf['RADeep'] == 'x')]
-df_crf = df_crf[df_crf['GenoMed4ALL'] == 'x']
+df_crf = df_crf[df_crf['RADeep'] == 'x']
 df_rules = pd.read_csv('RADeepGenomed4ALLINTEGRADataCo_DataQualityRules_2024-10-02.csv')
-df_dictionary_redcap = pd.read_csv('Genomed4ALL2024New_DataDictionary_2024-10-08.csv')
+df_dictionary_redcap = pd.read_csv('RADeep2024New_DataDictionary_2024-10-08.csv')
 
 # Get only the columns FIELD NAME_TECH, RULE for DATA QUALITY, STATUS, and Required
 df_crf = df_crf[['FIELD NAME_TECH', 'UPDATED RULE for DATA QUALITY', 'STATUS']]
@@ -45,7 +45,6 @@ df_merged = pd.concat([df_merged, df_dictionary_redcap[~df_dictionary_redcap['Va
 
 # Reorder the columns to match the expected output
 df_merged = df_merged[['Variable / Field Name', 'Form Name', 'Field Label', 'Required Field?', 'Field Type', 'Branching Logic (Show field only if...)', 'Text Validation Type OR Show Slider Number', 'UPDATED RULE for DATA QUALITY', 'REDCAP data quality']]
-
 # delete rows with empty 'Variable / Field Name'
 df_merged = df_merged.dropna(subset=['Variable / Field Name'])
 
@@ -73,6 +72,14 @@ print(duplicate_rules)
 
 # Populate 'Custom data quality' column with the required rules, appending new rules if needed
 
+date_acute_list = ['date_acute_r1', 'date_acute_r2', 'date_acute_r3', 'date_acute_r4']
+date_acute_scd_list = ['date_acute_scd_r1', 'date_acute_scd_r2', 'date_acute_scd_r3', 'date_acute_scd_r4', 'date_acute_scd_r5', 
+                        'date_acute_scd_r6', 'date_acute_scd_r7', 'date_acute_scd_r8', 'date_acute_scd_r9', 'date_acute_scd_r10', 
+                        'date_acute_scd_r11', 'date_acute_scd_r12', 'date_acute_scd_r13',
+                        'date_acute_scd_r14', 'date_acute_scd_r15', 'date_acute_scd_r16']
+
+forms_repeated_events = ['annual_update_general_information', 'laboratory_tests', 'clinical_manifestations', 'treatments', 'medical_history']
+
 for index, row in df_merged.iterrows():
     custom_quality_rules = []
     created_rule = []
@@ -89,19 +96,44 @@ for index, row in df_merged.iterrows():
     if row['Required Field?'] != 'y' and pd.notna(row['Branching Logic (Show field only if...)']):
         custom_quality_rules.append('If not empty, branching must be ' + row['Branching Logic (Show field only if...)'])
     
-    # Rule 4: If 'Text validation type OR Show Slider Number' is 'date_dmy' and 'Field Type' is not 'birth_date'
-    if row['Text Validation Type OR Show Slider Number'] == 'date_dmy' and row['Variable / Field Name'] != 'birth_date' and row['Variable / Field Name'] != 'death_date' and row['Required Field?'] == 'y':
-        custom_quality_rules.append('Date range must be between [birth_date] and [death_date] or [episode_date]')
+    # DATES:
+    if row['Variable / Field Name'] in date_acute_list:
+        # get the number at the end of the variable name, can be one or two digits
+        number = re.search(r'\d+', row['Variable / Field Name']).group()
+        variable_of_branching_associated = f'acute_id_r{number}'
+        custom_quality_rules.append(f"If [{variable_of_branching_associated}] = '9' "
+                                    f"or [{variable_of_branching_associated}] = '18' "
+                                    f"or [{variable_of_branching_associated}] = '20' "
+                                    f"or [{variable_of_branching_associated}] = '22', "
+                                    "date range must be between [episode_date] - 2 years and [episode_date]. If not, date range must be between [birth_date] and [death_date] or [episode_date]")
     
-    if row['Text Validation Type OR Show Slider Number'] == 'date_dmy' and row['Variable / Field Name'] != 'birth_date' and row['Required Field?'] != 'y':
-        custom_quality_rules.append('If not empty, date range must be between [birth_date] and [death_date] or [episode_date]')
+    elif row['Variable / Field Name'] in date_acute_scd_list:
+        # get the number at the end of the variable name, can be one or two digits
+        number = re.search(r'\d+', row['Variable / Field Name']).group()
+        variable_of_branching_associated = f'acute_id_scd_r{number}'
+        custom_quality_rules.append(f"If [{variable_of_branching_associated}] = '25' "
+                                    f"or [{variable_of_branching_associated}] = '27' "
+                                    f"or [{variable_of_branching_associated}] = '35' "
+                                    f"or [{variable_of_branching_associated}] = '42', "
+                                    f"or [{variable_of_branching_associated}] = '44', "
+                                    f"or [{variable_of_branching_associated}] = '45', "
+                                    f"or [{variable_of_branching_associated}] = '46', "
+                                    "date range must be between [episode_date] - 2 years and [episode_date]. If not, date range must be between [birth_date] and [death_date] or [episode_date]")
     
-    # Rule 4: If 'Field Type' is 'birth_date'
-    if row['Variable / Field Name'] == 'birth_date':
+    elif row['Text Validation Type OR Show Slider Number'] == 'date_dmy' and row['Form Name'] in forms_repeated_events:
+        custom_quality_rules.append(f"If [current-instance] = '1', date range must be between [birth_date] and [death_date] or [episode_date]. Else, date range must be between [timestamp] - 1 year and [timestamp]")
+    
+    elif row['Variable / Field Name'] == 'birth_date':
         custom_quality_rules.append('Date range must be between [current_date] and [current_date] - 100 years')
     
-    if row['Variable / Field Name'] == 'death_date':
+    elif row['Variable / Field Name'] == 'death_date':
         custom_quality_rules.append('Date range must be between [birth_date] and [current_date]')
+
+    elif row['Text Validation Type OR Show Slider Number'] == 'date_dmy' and row['Required Field?'] == 'y':
+        custom_quality_rules.append('Date range must be between [birth_date] and [death_date] or [episode_date]')
+
+    elif row['Text Validation Type OR Show Slider Number'] == 'date_dmy':
+        custom_quality_rules.append('If not empty, date range must be between [birth_date] and [death_date] or [episode_date]')
     
     # Rule 7: If 'Text Validation Type OR Show Slider Number' is 'integer'
     if row['Text Validation Type OR Show Slider Number'] == 'integer' and row['Required Field?'] == 'y' and row['Variable / Field Name'] != 'number_of_pregnancies':
@@ -204,4 +236,4 @@ for index, row in df_merged.iterrows():
             df_merged.at[index, 'Custom data quality'] = ' / '.join(custom_quality_rules)
 
 # Save the final dataframe to an Excel file
-df_merged.to_excel('genomed_data_quality_check.xlsx', index=False)
+df_merged.to_excel('radeep_data_quality_check.xlsx', index=False)

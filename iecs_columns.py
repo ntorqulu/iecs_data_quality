@@ -3,8 +3,10 @@ import openpyxl
 import re
 
 # Load the data
-df_iecs_file = pd.read_excel('radgenint_data_quality_check.xlsx')
+integra = False
+df_iecs_file = pd.read_excel('radeep_data_quality_check.xlsx')
 df_custom_rules = df_iecs_file[['Variable / Field Name', 'Form Name', 'Field Label', 'Branching Logic (Show field only if...)', 'Custom data quality']]
+forms_repeated_events = ['annual_update_general_information', 'laboratory_tests', 'clinical_manifestations', 'treatments', 'medical_history']
 
 # Initialize new columns
 df_custom_rules['min date'] = ''
@@ -54,33 +56,63 @@ for index, row in df_custom_rules.iterrows():
                 value_processed = True  # Mark that value range has been processed
 
     # Handle "Date range"
-    if pd.notna(custom_data_quality) and 'Date range' in custom_data_quality:
-        if 'Date range must be between [birth_date] and [death_date] or [episode_date]' in custom_data_quality:
+    # handle sample_date from lab tests
+    i = 0
+    if pd.notna(custom_data_quality) and 'sample_date' in row['Variable / Field Name']:
+        i += 1
+        if integra:
             df_custom_rules.loc[index, 'min date'] = '[date_of_birth]'
-            df_custom_rules.loc[index, 'max date'] = '[timestamp]'
+            df_custom_rules.loc[index, 'max date'] = '[timestamp_lab]'
+
+    elif pd.notna(custom_data_quality) and 'Date range must be between [birth_date] and [death_date] or [episode_date]' in custom_data_quality:
+        i += 1
+        df_custom_rules.loc[index, 'min date'] = '[date_of_birth]'
+        df_custom_rules.loc[index, 'max date'] = "if [patient_status_anual] = '2', [death_date]. Else, [timestamp]"
     
     # Handle 'If not empty, date range'
-    if pd.notna(custom_data_quality) and 'If not empty, date range' in custom_data_quality:
-        if  'If not empty, date range must be between [birth_date] and [death_date] or [episode_date]' in custom_data_quality:
-            df_custom_rules.loc[index, 'min date'] = '[date_of_birth]'
-            df_custom_rules.loc[index, 'max date'] = '[timestamp]'
+    elif pd.notna(custom_data_quality) and 'If not empty, date range must be between [birth_date] and [death_date] or [episode_date]' in custom_data_quality:
+        i += 1
+        df_custom_rules.loc[index, 'min date'] = '[date_of_birth]'
+        df_custom_rules.loc[index, 'max date'] = "if [patient_status_anual] = '2', [death_date]. Else, [timestamp]"
 
     # handle date_of_birth
-    if pd.notna(custom_data_quality) and 'date_of_birth' in row['Variable / Field Name']:
+    elif pd.notna(custom_data_quality) and 'date_of_birth' in row['Variable / Field Name']:
+        i += 1
         df_custom_rules.loc[index, 'min date'] = '[current_date] - 100 years'
         df_custom_rules.loc[index, 'max date'] = '[timestamp]'
     
     # handle death_date
-    if pd.notna(custom_data_quality) and 'death_date' in row['Variable / Field Name']:
+    elif pd.notna(custom_data_quality) and 'death_date' in row['Variable / Field Name']:
+        i += 1
         df_custom_rules.loc[index, 'min date'] = '[date_of_birth]'
         df_custom_rules.loc[index, 'max date'] = '[timestamp]'
-    
-    if pd.notna(custom_data_quality) and 'year_immigration' in row['Variable / Field Name']:
+
+    elif pd.notna(custom_data_quality) and 'year_immigration' in row['Variable / Field Name']:
+        i += 1
         df_custom_rules.loc[index, 'min date'] = 'year([date_of_birth])'
         df_custom_rules.loc[index, 'max date'] = 'year([timestamp])'
+    
+    # handle date_acute_r1 to r4
+    elif pd.notna(custom_data_quality) and 'date_acute_r' in row['Variable / Field Name']:
+        i += 1
+        df_custom_rules.loc[index, 'min date'] = "if [current-instance] > '1', [timestamp] - 2 years. Else, [date_of_birth]"
+        df_custom_rules.loc[index, 'max date'] = '[timestamp]'
+    
+    # handle date_acute_scd_r1 to r16
+    elif pd.notna(custom_data_quality) and 'date_acute_scd_r' in row['Variable / Field Name']:
+        i += 1
+        df_custom_rules.loc[index, 'min date'] = "if [current-instance] > '1', [timestamp] - 2 years. Else, [date_of_birth]"
+        df_custom_rules.loc[index, 'max date'] = '[timestamp]'
+    
+    # handle dates in repeated form events
+    elif pd.notna(custom_data_quality) and "If [current-instance] = '1', date range must be between [birth_date] and [death_date] or [episode_date]. Else, date range must be between [timestamp] - 1 year and [timestamp]" in custom_data_quality and row['Form Name'] in forms_repeated_events:
+        i += 1
+        df_custom_rules.loc[index, 'min date'] = "if [current-instance] > '1', [timestamp] - 1 year. Else, [date_of_birth]"
+        df_custom_rules.loc[index, 'max date'] = '[timestamp]'
+    print(i)
 
 # Save the updated DataFrame to a new Excel file
-df_custom_rules.to_excel('radgenint_custom_rules_iecs.xlsx', index=False)
+df_custom_rules.to_excel('radeep_custom_rules_iecs.xlsx', index=False)
 
 
     
