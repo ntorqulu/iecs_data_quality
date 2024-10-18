@@ -105,25 +105,53 @@ for index, row in df_merged.iterrows():
                                     f"or [{variable_of_branching_associated}] = '18' "
                                     f"or [{variable_of_branching_associated}] = '20' "
                                     f"or [{variable_of_branching_associated}] = '22', "
-                                    "date range must be between [episode_date] - 2 years and [episode_date]. If not, date range must be between [birth_date] and [death_date] or [episode_date]")
-    
+                                    "date range must be between [episode_date] - 2 years and [death_date] or [episode_date]. "
+                                    f"Elif [current-event] > 1, date range must be between [episode_date] - 1 year and [death_date] or [episode_date]. "
+                                    "Else, date range must be between [birth_date] and [death_date] or [episode_date]")
+        
+        variable_of_branching_associated_2 = f'acute_id2_r{number}'
+        custom_quality_rules.append(f"If [{variable_of_branching_associated_2}] = '9' "
+                                    f"or [{variable_of_branching_associated_2}] = '18' "
+                                    f"or [{variable_of_branching_associated_2}] = '20' "
+                                    f"or [{variable_of_branching_associated_2}] = '22', "
+                                    "date range must be between [episode_date] - 2 years and [death_date] or [episode_date]. "
+                                    f"Elif [current-event] > 1, date range must be between [episode_date] - 1 year and [death_date] or [episode_date]. "
+                                    "Else, date range must be between [birth_date] and [death_date] or [episode_date]")
+
     elif row['Variable / Field Name'] in date_acute_scd_list:
         # get the number at the end of the variable name, can be one or two digits
         number = re.search(r'\d+', row['Variable / Field Name']).group()
         variable_of_branching_associated = f'acute_id_scd_r{number}'
-        custom_quality_rules.append(f"If [{variable_of_branching_associated}] = '25' "
+        custom_quality_rules.append(f"If [current-event] = 1 and ([{variable_of_branching_associated}] = '25' "
                                     f"or [{variable_of_branching_associated}] = '27' "
                                     f"or [{variable_of_branching_associated}] = '35' "
                                     f"or [{variable_of_branching_associated}] = '42', "
                                     f"or [{variable_of_branching_associated}] = '44', "
                                     f"or [{variable_of_branching_associated}] = '45', "
-                                    f"or [{variable_of_branching_associated}] = '46', "
-                                    "date range must be between [episode_date] - 2 years and [episode_date]. If not, date range must be between [birth_date] and [death_date] or [episode_date]")
+                                    f"or [{variable_of_branching_associated}] = '46'), "
+                                    "date range must be between [episode_date] - 2 years and [death_date] or [episode_date]. "
+                                    f"Elif [current-event] > 1, date range must be between [episode_date] - 1 year and [death_date] or [episode_date]. "
+                                    "Else, date range must be between [birth_date] and [death_date] or [episode_date]")
+        
+        variable_of_branching_associated_2 = f'acute_id2_scd_r{number}'
+        custom_quality_rules.append(f"If [current-event] = 1 and ([{variable_of_branching_associated_2}] = '25' "
+                                    f"or [{variable_of_branching_associated_2}] = '27' "
+                                    f"or [{variable_of_branching_associated_2}] = '35' "
+                                    f"or [{variable_of_branching_associated_2}] = '42', "
+                                    f"or [{variable_of_branching_associated_2}] = '44', "
+                                    f"or [{variable_of_branching_associated_2}] = '45', "
+                                    f"or [{variable_of_branching_associated_2}] = '46'), "
+                                    "date range must be between [episode_date] - 2 years and [death_date] or [episode_date]. "
+                                    f"Elif [current-event] > 1, date range must be between [episode_date] - 1 year and [death_date] or [episode_date]. "
+                                    "Else, date range must be between [birth_date] and [death_date] or [episode_date]")
+    
+    elif row['Text Validation Type OR Show Slider Number'] == 'date_dmy' and 'calc' in row['Variable / Field Name']:
+        pass
     
     elif row['Text Validation Type OR Show Slider Number'] == 'date_dmy' and row['Form Name'] in forms_repeated_events:
-        custom_quality_rules.append(f"If [current-instance] = '1', date range must be between [birth_date] and [death_date] or [episode_date]. Else, date range must be between [timestamp] - 1 year and [timestamp]")
+        custom_quality_rules.append(f"If [current-instance] = '1', date range must be between [birth_date] and [death_date] or [episode_date]. Else, date range must be between [episode_date] - 1 year and [death_date] or [episode_date]")
     
-    elif row['Variable / Field Name'] == 'birth_date':
+    elif row['Variable / Field Name'] == 'date_of_birth':
         custom_quality_rules.append('Date range must be between [current_date] and [current_date] - 100 years')
     
     elif row['Variable / Field Name'] == 'death_date':

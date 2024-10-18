@@ -62,24 +62,24 @@ for index, row in df_custom_rules.iterrows():
         i += 1
         if integra:
             df_custom_rules.loc[index, 'min date'] = '[date_of_birth]'
-            df_custom_rules.loc[index, 'max date'] = '[timestamp_lab]'
+            df_custom_rules.loc[index, 'max date'] = "If [patient_status] = '2', [death_date]. Else, [timestamp_lab]"
 
     elif pd.notna(custom_data_quality) and 'Date range must be between [birth_date] and [death_date] or [episode_date]' in custom_data_quality:
         i += 1
         df_custom_rules.loc[index, 'min date'] = '[date_of_birth]'
-        df_custom_rules.loc[index, 'max date'] = "if [patient_status_anual] = '2', [death_date]. Else, [timestamp]"
+        df_custom_rules.loc[index, 'max date'] = "If [patient_status] = '2', [death_date]. Else, [timestamp]"
     
     # Handle 'If not empty, date range'
     elif pd.notna(custom_data_quality) and 'If not empty, date range must be between [birth_date] and [death_date] or [episode_date]' in custom_data_quality:
         i += 1
         df_custom_rules.loc[index, 'min date'] = '[date_of_birth]'
-        df_custom_rules.loc[index, 'max date'] = "if [patient_status_anual] = '2', [death_date]. Else, [timestamp]"
+        df_custom_rules.loc[index, 'max date'] = "If [patient_status] = '2', [death_date]. Else, [timestamp]"
 
     # handle date_of_birth
     elif pd.notna(custom_data_quality) and 'date_of_birth' in row['Variable / Field Name']:
         i += 1
-        df_custom_rules.loc[index, 'min date'] = '[current_date] - 100 years'
-        df_custom_rules.loc[index, 'max date'] = '[timestamp]'
+        df_custom_rules.loc[index, 'min date'] = '[timestamp] - 100 years'
+        df_custom_rules.loc[index, 'max date'] = "If [patient_status] = '2', [death_date]. Else, [timestamp]"
     
     # handle death_date
     elif pd.notna(custom_data_quality) and 'death_date' in row['Variable / Field Name']:
@@ -90,25 +90,25 @@ for index, row in df_custom_rules.iterrows():
     elif pd.notna(custom_data_quality) and 'year_immigration' in row['Variable / Field Name']:
         i += 1
         df_custom_rules.loc[index, 'min date'] = 'year([date_of_birth])'
-        df_custom_rules.loc[index, 'max date'] = 'year([timestamp])'
+        df_custom_rules.loc[index, 'max date'] = "If [patient_status] = '2', year([death_date]). Else, year([timestamp])"
     
     # handle date_acute_r1 to r4
     elif pd.notna(custom_data_quality) and 'date_acute_r' in row['Variable / Field Name']:
         i += 1
-        df_custom_rules.loc[index, 'min date'] = "if [current-instance] > '1', [timestamp] - 2 years. Else, [date_of_birth]"
-        df_custom_rules.loc[index, 'max date'] = '[timestamp]'
+        df_custom_rules.loc[index, 'min date'] = "If [current-instance] = '1' and [acute_conditions], [timestamp] - 2 years. Elif [current-instance] = '1' and [acute_conditions_2], [timestamp] - 2 years. Elif [current-instance] > '1', [timestamp] - 1 year. Else, [date_of_birth]"
+        df_custom_rules.loc[index, 'max date'] = "If [patient_status] = '2', [death_date]. Else, [timestamp]"
     
     # handle date_acute_scd_r1 to r16
     elif pd.notna(custom_data_quality) and 'date_acute_scd_r' in row['Variable / Field Name']:
         i += 1
-        df_custom_rules.loc[index, 'min date'] = "if [current-instance] > '1', [timestamp] - 2 years. Else, [date_of_birth]"
-        df_custom_rules.loc[index, 'max date'] = '[timestamp]'
+        df_custom_rules.loc[index, 'min date'] = "If [current-instance] = '1' and [acute_conditions_scd], [timestamp] - 2 years. Elif [current-instance] = '1' and [acute_conditions_scd_2], [timestamp] - 2 years. Elif [current-instance] > '1', [timestamp] - 1 year. Else, [date_of_birth]"
+        df_custom_rules.loc[index, 'max date'] = "If [patient_status] = '2', [death_date]. Else, [timestamp]"
     
     # handle dates in repeated form events
-    elif pd.notna(custom_data_quality) and "If [current-instance] = '1', date range must be between [birth_date] and [death_date] or [episode_date]. Else, date range must be between [timestamp] - 1 year and [timestamp]" in custom_data_quality and row['Form Name'] in forms_repeated_events:
+    elif pd.notna(custom_data_quality) and "If [current-instance] = '1', date range must be between [birth_date] and [death_date] or [episode_date]. Else, date range must be between [episode_date] - 1 year and [death_date] or [episode_date]" in custom_data_quality and row['Form Name'] in forms_repeated_events:
         i += 1
-        df_custom_rules.loc[index, 'min date'] = "if [current-instance] > '1', [timestamp] - 1 year. Else, [date_of_birth]"
-        df_custom_rules.loc[index, 'max date'] = '[timestamp]'
+        df_custom_rules.loc[index, 'min date'] = "If [current-instance] > '1', [timestamp] - 1 year. Else, [date_of_birth]"
+        df_custom_rules.loc[index, 'max date'] = "If [patient_status] = '2', [death_date]. Else, [timestamp]"
     print(i)
 
 # Save the updated DataFrame to a new Excel file
