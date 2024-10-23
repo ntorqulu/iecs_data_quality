@@ -1,8 +1,8 @@
 import pandas as pd
 import re
-
+from config import project_name
 # Load the data
-df_data_quality_rules = pd.read_excel('radeep_data_quality_check.xlsx')
+df_data_quality_rules = pd.read_excel(f'{project_name}_data_quality_check.xlsx')
 
 # Create a new DataFrame for custom rules
 df_custom_rules = pd.DataFrame(columns=['rule_name', 'rule_logic', 'real_time_execution'])
@@ -208,45 +208,7 @@ for index, row in df_data_quality_rules.iterrows():
             'rule_logic': rule_logic,
             'real_time_execution': 'y'
         }, ignore_index=True)
-
-    # 5. Dates in repeated events
-    elif pd.notna(custom_data_quality) and "If [current-instance] = '1', date range must be between [birth_date] and [death_date] or [episode_date]. Else, date range must be between [episode_date] - 1 year and [death_date] or [episode_date]" in custom_data_quality:
         
-        # First instance
-        rule_name = f"[{variable_field_name}] ({field_label}) must fall between the specified date range."
-        # Alive
-        rule_logic = f"[{variable_field_name}] <> '' and [current-instance] = '1' and [patient_status] <> '2' and ([{variable_field_name}] < [date_of_birth] or [{variable_field_name}] > [timestamp]) and [{form_name}_complete] = '2'"
-        df_custom_rules = df_custom_rules._append({
-            'rule_name': rule_name,
-            'rule_logic': rule_logic,
-            'real_time_execution': 'y'
-        }, ignore_index=True)
-        # Dead
-        rule_logic = f"[{variable_field_name}] <> '' and [current-instance] = '1' and [patient_status] = '2' and ([{variable_field_name}] < [date_of_birth] or [{variable_field_name}] > [death_date]) and [{form_name}_complete] = '2'"
-        df_custom_rules = df_custom_rules._append({
-            'rule_name': rule_name,
-            'rule_logic': rule_logic,
-            'real_time_execution': 'y'
-        }, ignore_index=True)
-
-
-        # Other instances
-        rule_name = f"[{variable_field_name}] ({field_label}) must fall between the specified date range."
-        # Alive
-        rule_logic = f"[{variable_field_name}] <> '' and [current-instance] > '1' and [patient_status] <> '2' and ([{variable_field_name}] < [timestamp] - 1 year or [{variable_field_name}] > [timestamp]) and [{form_name}_complete] = '2'"
-        df_custom_rules = df_custom_rules._append({
-            'rule_name': rule_name,
-            'rule_logic': rule_logic,
-            'real_time_execution': 'y'
-        }, ignore_index=True)
-        # Dead
-        rule_logic = f"[{variable_field_name}] <> '' and [current-instance] > '1' and [patient_status] = '2' and ([{variable_field_name}] < [death_date] or [{variable_field_name}] > [timestamp]) and [{form_name}_complete] = '2'"
-        df_custom_rules = df_custom_rules._append({
-            'rule_name': rule_name,
-            'rule_logic': rule_logic,
-            'real_time_execution': 'y'
-        }, ignore_index=True)
-
     # 6. date_acute_r1 to r4
     elif pd.notna(custom_data_quality) and 'date_acute_r' in row['Variable / Field Name']:
         number = re.search(r'\d+', row['Variable / Field Name']).group()
